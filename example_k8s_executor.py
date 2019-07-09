@@ -56,29 +56,7 @@ start_task = PythonOperator(
 # But you can if you want to
 one_task = PythonOperator(
     task_id="one_task", python_callable=print_stuff, dag=dag,
-    executor_config={"KubernetesExecutor": {"image": "airflow/ci:latest"}}
+    executor_config={"KubernetesExecutor": {"image": "apache/airflow:master-ci"}}
 )
 
-# Use the zip binary, which is only found in this special docker image
-two_task = PythonOperator(
-    task_id="two_task", python_callable=use_zip_binary, dag=dag,
-    executor_config={"KubernetesExecutor": {"image": "airflow/ci_zip:latest"}}
-)
-
-# Limit resources on this operator/task with node affinity & tolerations
-three_task = PythonOperator(
-    task_id="three_task", python_callable=print_stuff, dag=dag,
-    executor_config={
-        "KubernetesExecutor": {"request_memory": "128Mi",
-                               "limit_memory": "128Mi",
-                               "tolerations": tolerations,
-                               "affinity": affinity}}
-)
-
-# Add arbitrary labels to worker pods
-four_task = PythonOperator(
-    task_id="four_task", python_callable=print_stuff, dag=dag,
-    executor_config={"KubernetesExecutor": {"labels": {"foo": "bar"}}}
-)
-
-start_task.set_downstream([one_task, two_task, three_task, four_task])
+start_task.set_downstream([one_task])

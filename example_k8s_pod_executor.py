@@ -30,7 +30,7 @@ passing = KubernetesPodOperator(namespace='default',
                           dag=dag,
                           in_cluster=True
                           )
-
+"""
 failing = KubernetesPodOperator(namespace='default',
                           image="ubuntu:16.04",
                           cmds=["python","-c"],
@@ -42,6 +42,7 @@ failing = KubernetesPodOperator(namespace='default',
                           dag=dag,
                           in_cluster=True
                           )
+"""
 
 passing.set_upstream(start)
-failing.set_upstream(start)
+#failing.set_upstream(start)

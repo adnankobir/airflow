@@ -74,4 +74,4 @@ four_task = PythonOperator(
     executor_config={"KubernetesExecutor": {"labels": {"foo": "bar"}}}
 )
 
-start_task.set_downstream([one_task, two_task, three_task])
+start_task.set_downstream([one_task, two_task, four_task])

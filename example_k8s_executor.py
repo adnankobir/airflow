@@ -42,7 +42,7 @@ tolerations = [{
 
 
 def print_stuff():
-    print("stuff!")
+    print("stuffFFFF!")
     sleep(120)
 
 def print_stuff1():

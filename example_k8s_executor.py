@@ -1,7 +1,9 @@
 import airflow
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG
+from time import sleep
 import os
+
 
 args = {
     'owner': 'airflow',
@@ -41,11 +43,20 @@ tolerations = [{
 
 def print_stuff():
     print("stuff!")
+    sleep(120)
 
+def print_stuff1():
+    print("stuff1!")
+    sleep(240)
+
+def print_stuff2():
+    print("stuff2!")
+    sleep(480)
 
 def use_airflow_binary():
     rc = os.system("airflow -h")
     assert rc == 0
+    sleep(480)
 
 # You don't have to use any special KubernetesExecutor configuration if you don't want to
 start_task = PythonOperator(
@@ -54,24 +65,20 @@ start_task = PythonOperator(
 
 # But you can if you want to
 one_task = PythonOperator(
-    task_id="one_task", python_callable=print_stuff, dag=dag,
-    executor_config={"KubernetesExecutor": {"image": "apache/airflow:master-ci-slim"}}
+    task_id="one_task", python_callable=print_stuff1, dag=dag
 )
 
 # Use the airflow -h binary
 two_task = PythonOperator(
-    task_id="two_task", python_callable=use_airflow_binary, dag=dag,
-    executor_config={"KubernetesExecutor": {"image": "apache/airflow:master-ci-slim"}}
+    task_id="two_task", python_callable=print_stuff2, dag=dag
 )
 
 # Limit resources on this operator/task with node affinity & tolerations
 three_task = PythonOperator(
-    task_id="three_task", python_callable=print_stuff, dag=dag,
+    task_id="three_task", python_callable=use_airflow_binary, dag=dag,
     executor_config={
         "KubernetesExecutor": {"request_memory": "128Mi",
-                               "limit_memory": "128Mi",
-                               "tolerations": tolerations,
-                               "affinity": affinity}}
+                               "limit_memory": "128Mi"}}
 )
 
 # Add arbitrary labels to worker pods
@@ -80,4 +87,4 @@ four_task = PythonOperator(
     executor_config={"KubernetesExecutor": {"labels": {"foo": "bar"}}}
 )
 
-start_task.set_downstream([one_task, two_task, three_task, four_task])
+start_task.set_downstream([one_task, two_task, three_task], four_task)
